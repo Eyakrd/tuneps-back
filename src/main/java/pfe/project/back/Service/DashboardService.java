@@ -19,17 +19,33 @@ public class DashboardService {
         return dashboardRepository.findAll();
     }
 
-   public Dashboard addDashboard(Dashboard dashboard) {
+    public Dashboard addDashboard(Dashboard dashboard) {
         return dashboardRepository.save(dashboard);
 
-   }
-   public
-   Dashboard getLastDashboard() {
+    }
+    public
+    Dashboard getLastDashboard() {
         return dashboardRepository.findLastDashboard();
-   }
+    }
 
 
     public Dashboard getDashboardsByType(String type) {
         return dashboardRepository.findLastDashboardByType(type);
     }
+
+
+    public void updateDashboardStatus(Long id, String status) {
+        if (!"active".equals(status) && !"inactive".equals(status)) {
+            throw new IllegalArgumentException("Status must be 'active' or 'inactive'");
+        }
+
+        Dashboard dashboard = dashboardRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Dashboard not found"));
+
+        dashboard.setStatus(status); // Cette ligne manquait !
+        dashboardRepository.save(dashboard);
+    }
+
+
+
 }

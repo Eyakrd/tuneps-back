@@ -21,15 +21,18 @@ public class Dashboard {
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;
-    private Boolean active ;
+
+    @Column(name = "is_active")
+
+    private String status;
     private String type ;
 
-    public Boolean getActive() {
-        return active;
+    public String getStatus() {
+        return status;
     }
 
-    public void setActive(Boolean active) {
-        this.active = active;
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public String getType() {
