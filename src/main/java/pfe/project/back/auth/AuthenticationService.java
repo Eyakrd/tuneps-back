@@ -45,6 +45,9 @@ public class AuthenticationService {
                 )
         );
         var user = repository.findByEmail(request.getEmail()).orElseThrow();
+        if (user.getRole() == Role.EMPLOYEE && "INACTIVE".equalsIgnoreCase(user.getStatus())) {
+            throw new RuntimeException("Employé non autorisé");
+        }
         var jwtToken= jwtService.generateToken(user);
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
