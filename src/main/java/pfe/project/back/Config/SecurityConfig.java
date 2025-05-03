@@ -44,6 +44,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/employee/**").hasAnyRole(ADMIN.name(), EMPLOYEE.name())
                 .requestMatchers("/api/dashboards/**").permitAll()
                 .requestMatchers("/api/demandes/**").permitAll()
+                .requestMatchers("/api/employees/**").permitAll()
                 /*.requestMatchers(GET,"/api/v1/employee/**").hasAnyAuthority(ADMIN_READ.name(),EMPLOYEE_READ.name())
                 .requestMatchers(POST,"/api/v1/employee/**").hasAnyAuthority(ADMIN_CREATE.name(),EMPLOYEE_CREATE.name())
                 .requestMatchers(PUT,"/api/v1/employee/**").hasAnyAuthority(ADMIN_UPDATE.name(),EMPLOYEE_UPDATE.name())

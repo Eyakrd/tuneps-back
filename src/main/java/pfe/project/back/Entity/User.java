@@ -31,6 +31,8 @@ public class User implements UserDetails {
     @Column(nullable = false) // Empêche le stockage de mots de passe nulls
     private String password;
 
+
+
     @Enumerated(EnumType.STRING)
     private Role role;
     @PrePersist
@@ -42,6 +44,8 @@ public class User implements UserDetails {
 //    @OneToMany(mappedBy = "user")
 //    private List<Token> tokens;
 
+    private String cin;
+    private String status;
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority( role.name().trim()));
