@@ -55,5 +55,9 @@ public class AuthenticationService {
                 .build();
 
     }
+    public PasswordEncoder getPasswordEncoder() {
+        return passwordEncoder;
+    }
+
 }
 

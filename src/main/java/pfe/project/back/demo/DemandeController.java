@@ -1,4 +1,4 @@
-package pfe.project.back.auth;
+package pfe.project.back.demo;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
