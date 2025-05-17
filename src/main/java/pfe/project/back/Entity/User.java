@@ -33,6 +33,16 @@ public class User implements UserDetails {
 
 
 
+
+    private String resetCode;
+
+    public String getResetCode() {
+        return resetCode;
+    }
+    public void setResetCode(String resetCode) {
+        this.resetCode = resetCode;
+    }
+
     @Enumerated(EnumType.STRING)
     private Role role;
     @PrePersist
@@ -56,6 +66,9 @@ public class User implements UserDetails {
         return password;
     }
 
+    public void setPassword(String password) {
+        this.password = password;
+    }
     @Override
     public String getUsername() {
         return email;

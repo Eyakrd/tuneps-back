@@ -4,12 +4,15 @@ package pfe.project.back.auth;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pfe.project.back.Config.JwtService;
 import pfe.project.back.Entity.Role;
 import pfe.project.back.Entity.User;
 import pfe.project.back.Repo.UserRepo;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -57,6 +60,15 @@ public class AuthenticationService {
     }
     public PasswordEncoder getPasswordEncoder() {
         return passwordEncoder;
+    }
+    public boolean ifEmailExists(String email) {
+        return repository.existsByEmail(email);
+    }
+    public Optional<User> findUserByEmail(String email) {
+        return this.repository.findByEmail(email);
+    }
+    public void editUser(User user) {
+        this.repository.save(user);
     }
 
 }

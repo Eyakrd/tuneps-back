@@ -24,6 +24,22 @@ spring:
       max-file-size: 10MB
       max-request-size: 10MB
 
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: kradeya23@gmail.com
+    password: fnsq vwyv nwvh ueek
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+
 
 jwt:
   secret: xnSLjkppKzfCL2uZJfIASp7MBxwaSC4ifNXs8Q4BbNXZ42iibDTkryIQrwts7vyVHyRUIx6vQugnsxtMbtrS4OjnmtKF3MuwWYfKrXhih+4=
+
+
+

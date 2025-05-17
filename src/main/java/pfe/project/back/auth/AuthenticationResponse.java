@@ -20,4 +20,7 @@ public class AuthenticationResponse {
 
     @JsonProperty("role")
     private String role;
+
+
+    private int result;
 }

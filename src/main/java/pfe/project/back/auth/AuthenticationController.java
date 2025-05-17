@@ -6,10 +6,16 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import pfe.project.back.Dto.Mail;
+import pfe.project.back.Dto.NewPassword;
+import pfe.project.back.Dto.UserCode;
 import pfe.project.back.Entity.User;
+import pfe.project.back.Repo.EmailService;
 import pfe.project.back.Repo.UserRepo;
 
+import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
@@ -21,6 +27,7 @@ public class AuthenticationController {
     private final AuthenticationService service;
     private final UserRepo userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponse> register(@RequestBody RegisterRequest request) {
@@ -29,8 +36,8 @@ public class AuthenticationController {
 
     @PostMapping("/login")
 
-        public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request){
-            return ResponseEntity.ok(service.authenticate(request));
+    public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {
+        return ResponseEntity.ok(service.authenticate(request));
     }
 
 
@@ -83,6 +90,80 @@ public class AuthenticationController {
     }
 
 
+    @PostMapping("checkEmail")
+    public AuthenticationResponse checkEmail(@RequestBody ResetPassword resetpassword) {
+        Optional<User> optionalUser = this.service.findUserByEmail(resetpassword.getEmail());
+        AuthenticationResponse authenticationResponse = new AuthenticationResponse();
+
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+
+            String code = UserCode.getCode();
+            Mail mail = new Mail(resetpassword.getEmail(), code);
+            emailService.sendCodeByMail(mail);
+
+            // Ici, on utilise uniquement le champ resetCode, plus besoin de Code
+            user.setResetCode(code);
+            //user.setResetCodeExpiration(LocalDateTime.now().plusMinutes(15));
+
+            this.service.editUser(user);
+
+            authenticationResponse.setResult(1);
+        } else {
+            authenticationResponse.setResult(0);
+        }
+
+        return authenticationResponse;
+    }
+
+
+    @PostMapping("/resetPassword")
+    public AuthenticationResponse resetPassword(@RequestBody NewPassword newPassword) {
+        Optional<User> optionalUser = this.service.findUserByEmail(newPassword.getEmail());
+        AuthenticationResponse authenticationResponse = new AuthenticationResponse();
+
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            if (user.getResetCode() != null && user.getResetCode().equals(newPassword.getCode())) {
+                user.setPassword(passwordEncoder.encode(newPassword.getPassword()));
+                user.setResetCode(null);
+                service.editUser(user);
+                authenticationResponse.setResult(1);
+            } else {
+                authenticationResponse.setResult(0);
+            }
+        } else {
+            authenticationResponse.setResult(0);
+        }
+        return authenticationResponse;
+    }
 }
-
-
+//@PostMapping("/resetPassword")
+//public AuthenticationResponse resetPassword(@RequestBody NewPassword newPassword) {
+//    Optional<User> optionalUser = this.service.findUserByEmail(newPassword.getEmail());
+//    AuthenticationResponse authenticationResponse = new AuthenticationResponse();
+//
+//    if (optionalUser.isPresent()) {
+//        User user = optionalUser.get();
+//
+//        LocalDateTime now = LocalDateTime.now();
+//        if (user.getResetCode() != null
+//            && user.getResetCode().equals(newPassword.getCode())
+//            && user.getResetCodeExpiration() != null
+//            && now.isBefore(user.getResetCodeExpiration())) {
+//
+//            user.setPassword(passwordEncoder.encode(newPassword.getPassword()));
+//            user.setResetCode(null);
+//            user.setResetCodeExpiration(null);
+//            service.editUser(user);
+//            authenticationResponse.setResult(1);
+//        } else {
+//            // code invalide ou expiré
+//            authenticationResponse.setResult(0);
+//        }
+//    } else {
+//        authenticationResponse.setResult(0);
+//    }
+//
+//    return authenticationResponse;
+//}
