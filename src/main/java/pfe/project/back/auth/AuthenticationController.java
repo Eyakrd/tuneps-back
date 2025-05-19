@@ -104,7 +104,7 @@ public class AuthenticationController {
 
             // Ici, on utilise uniquement le champ resetCode, plus besoin de Code
             user.setResetCode(code);
-            //user.setResetCodeExpiration(LocalDateTime.now().plusMinutes(15));
+            user.setResetCodeExpiration(LocalDateTime.now().plusMinutes(3));
 
             this.service.editUser(user);
 
@@ -122,22 +122,46 @@ public class AuthenticationController {
         Optional<User> optionalUser = this.service.findUserByEmail(newPassword.getEmail());
         AuthenticationResponse authenticationResponse = new AuthenticationResponse();
 
-        if (optionalUser.isPresent()) {
-            User user = optionalUser.get();
-            if (user.getResetCode() != null && user.getResetCode().equals(newPassword.getCode())) {
-                user.setPassword(passwordEncoder.encode(newPassword.getPassword()));
-                user.setResetCode(null);
-                service.editUser(user);
-                authenticationResponse.setResult(1);
-            } else {
-                authenticationResponse.setResult(0);
-            }
-        } else {
-            authenticationResponse.setResult(0);
+
+        if (optionalUser.isEmpty()) {
+            authenticationResponse.setResult(0); // Email introuvable
+            return authenticationResponse;
         }
+
+        User user = optionalUser.get();
+        LocalDateTime now = LocalDateTime.now();
+        if (user.getResetCode()==null || user.getResetCodeExpiration()== null || !user.getResetCode().equals(newPassword.getCode()) || user.getResetCodeExpiration().isBefore(now)) {
+            authenticationResponse.setResult(2); // code invalide ou expiré
+            return authenticationResponse;
+        }
+
+        if(!isStrongPassword(newPassword.getPassword())){
+        authenticationResponse.setResult(3); //mdp faible
+        return authenticationResponse;
+        }
+        try {
+            user.setPassword(passwordEncoder.encode(newPassword.getPassword()));
+            user.setResetCode(null);
+            user.setResetCodeExpiration(null);
+            service.editUser(user);
+
+            authenticationResponse.setResult(1); // Succès
+        } catch (Exception e) {
+            authenticationResponse.setResult(4); // Erreur système
+        }
+
         return authenticationResponse;
     }
+    private boolean isStrongPassword(String password) {
+        return password.length() >= 8 &&
+                password.matches(".*[A-Z].*") &&
+                password.matches(".*[a-z].*") &&
+                password.matches(".*\\d.*") &&
+                password.matches(".*[!@#$%^&*()].*");
+    }
+
 }
+
 //@PostMapping("/resetPassword")
 //public AuthenticationResponse resetPassword(@RequestBody NewPassword newPassword) {
 //    Optional<User> optionalUser = this.service.findUserByEmail(newPassword.getEmail());
